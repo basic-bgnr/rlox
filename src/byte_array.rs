@@ -9,24 +9,33 @@ pub enum OpCode{
 
 #[derive(Debug)]
 pub struct Chunk{
+	//this hold the values of the constant in the program
 	values: ValueArray,
+	// this holds the instruction to the vm 
 	codes : Vec<u8>,
+	// this stores the line no corresponding the instruction set, for runtime error identification purpose
+	lines : Vec<usize>,
+
 }
 
 pub trait Chunkable{
 	fn new(capacity: usize) -> Chunk;
-	fn write_chunk(&mut self, new_data: u8);
+	fn write_chunk(&mut self, new_data: u8, atline: usize);
 	fn free(self);
 	fn get_codes(&self) -> &[u8];
 	fn get_values(&self) -> &[Value];
+	fn get_lines(&self) -> &[usize];
 }
 
 impl Chunkable for Chunk {
 	fn new(capacity: usize) -> Chunk {
-		Chunk{ codes : Vec::with_capacity(capacity), values: ValueArray::new(capacity)}
+		Chunk{ codes : Vec::with_capacity(capacity), 
+			   values: ValueArray::new(capacity),
+			   lines: Vec::with_capacity(capacity)}
 	}
-	fn write_chunk(&mut self, new_data: u8){
+	fn write_chunk(&mut self, new_data: u8, atline: usize){
 		self.codes.push(new_data);
+		self.lines.push(atline);
 	}
 	fn free(self) {
 	}
@@ -36,6 +45,9 @@ impl Chunkable for Chunk {
 	}
 	fn get_values(&self) -> &[Value]{
 		&self.values.get_values()
+	}
+	fn get_lines(&self) -> &[Value]{
+		&self.lines
 	}
 }
 
@@ -56,10 +68,12 @@ impl ValueArray {
 		self.values.push(value);
 		return self.values.len() - 1;
 	}
+
 	pub fn free(self){
 	}
 
 	pub fn get_values(&self)-> &[Value]{
 		&self.values
 	}
+
 }

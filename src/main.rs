@@ -14,10 +14,13 @@ fn main(){
 
 	let mut chunk = Chunk::new(100);
 
-	chunk.write_chunk(OpCode::OpConstant as u8);
-	chunk.write_chunk(123_u8);
+	chunk.write_chunk(OpCode::OpConstant as u8, 1);
+	chunk.write_chunk(123_u8, 1);
 
-	chunk.write_chunk(OpCode::OpReturn as u8);
+	chunk.write_chunk(OpCode::OpConstant as u8, 1);
+	chunk.write_chunk(13_u8, 2);
+
+	chunk.write_chunk(OpCode::OpReturn as u8, 3);
 
 	chunk.disassemble("main code");
 

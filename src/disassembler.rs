@@ -3,6 +3,7 @@ use super::byte_array::{Chunk, OpCode, Chunkable};
 pub trait Disassembable{
 	fn disassemble(&self, name: &str);
 	fn disassemble_opcode(&self);
+	fn print(&self, instruction_string:&str, line_num:usize);
 }
 
 impl<T:Chunkable> Disassembable for T{ 
@@ -12,17 +13,23 @@ impl<T:Chunkable> Disassembable for T{
 	}
 
 	fn disassemble_opcode(&self){
-		let mut chunk_iterator = self.get_codes().iter();
+		let mut instruction_iterator = self.get_codes().iter();
+		let mut line_iterator = self.get_lines().iter();
+
+		let mut zipped_iterator = instruction_iterator.zip(line_iterator);
 		loop {
-			match chunk_iterator.next() {
-					Some(&code) if code == OpCode::OpReturn as u8   => println!("{} OpReturn", code),
-					Some(&code) if code == OpCode::OpConstant as u8 => if let Some(&index) = chunk_iterator.next(){
-																			// let value = self.get_values()[index as usize];
-																			println!("{} OpConstant {}", code, index);
-																		},
-					None                                            => break,
-					_                                               => println!("unknown op code"),
+			match zipped_iterator.next() {
+					Some((&code, &line_num)) if code == OpCode::OpReturn as u8   => self.print("OP_RETURN", line_num),
+					Some((&code, &line_num)) if code == OpCode::OpConstant as u8 => if let Some((&value, &line_num)) = zipped_iterator.next(){
+						                                                                let formatted_string = format!("{} {}", "OP_CONSTANT", value);
+																						self.print(&formatted_string, line_num);		
+																					}, 
+					None                                                         => break,
+					_                                                            => println!("unknown op code"),
 			}
 		}
+	}
+	fn print(&self, instruction_string: &str, line_num: usize){
+		println!("line {}: {:}", line_num, instruction_string);
 	}
 }
