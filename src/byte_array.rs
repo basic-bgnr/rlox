@@ -1,20 +1,27 @@
 #[derive(Debug)]
 pub enum OpCode{
-	//return from the function context
+	//return from the context
 	OpReturn,
 	//load constant from the `values` array from the Chunk, 
 	//this opcode is followed by 1 byte long index to load the value from
 	OpConstant,
+	//mathematical opcodes
+	
+	OpAdd,
+	OpSub,
+	OpMul,
+	OpDiv,
+	OpNeg,
 }
 
 #[derive(Debug)]
 pub struct Chunk{
 	//this hold the values of the constant in the program
-	values: ValueArray,
+	pub values: ValueArray,
 	// this holds the instruction to the vm 
-	codes : Vec<u8>,
+	pub codes : Vec<u8>,
 	// this stores the line no corresponding the instruction set, for runtime error identification purpose
-	lines : Vec<usize>,
+	pub lines : Vec<usize>,
 
 }
 
@@ -46,16 +53,16 @@ impl Chunkable for Chunk {
 	fn get_values(&self) -> &[Value]{
 		&self.values.get_values()
 	}
-	fn get_lines(&self) -> &[Value]{
+	fn get_lines(&self) -> &[usize]{
 		&self.lines
 	}
 }
 
 
-type Value = usize;
+pub type Value = isize;
 
 #[derive(Debug)]
-struct ValueArray { 
+pub struct ValueArray { 
   values: Vec<Value>
 }
 
